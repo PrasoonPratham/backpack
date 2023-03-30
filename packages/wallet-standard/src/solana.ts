@@ -14,12 +14,16 @@ export const SOLANA_TESTNET_CHAIN = 'solana:testnet';
 /** Solana Localnet cluster, e.g. http://localhost:8899 */
 export const SOLANA_LOCALNET_CHAIN = 'solana:localnet';
 
+/** Custom Solana cluster */
+export const SOLANA_CUSTOM_CHAIN = 'solana:custom';
+
 /** Array of all Solana clusters */
 export const SOLANA_CHAINS = [
     SOLANA_MAINNET_CHAIN,
     SOLANA_DEVNET_CHAIN,
     SOLANA_TESTNET_CHAIN,
     SOLANA_LOCALNET_CHAIN,
+    SOLANA_CUSTOM_CHAIN,
 ] as const;
 
 /** Type of all Solana clusters */
