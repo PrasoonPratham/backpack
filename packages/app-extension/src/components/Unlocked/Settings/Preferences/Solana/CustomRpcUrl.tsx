@@ -34,7 +34,7 @@ export function PreferenceSolanaCustomRpcUrl() {
     return () => {
       nav.setOptions({ headerTitle: title });
     };
-  }, []);
+  }, [nav]);
 
   useEffect(() => {
     if (!rpcUrl) {
