@@ -26,7 +26,7 @@ export function Balances() {
     token: Token,
     publicKey: string
   ) => {
-    push({
+    void push({
       title: `${toTitleCase(blockchain)} / ${token.ticker}`,
       componentId: NAV_COMPONENT_TOKEN,
       componentProps: {
