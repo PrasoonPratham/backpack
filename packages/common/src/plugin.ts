@@ -248,7 +248,6 @@ export class Plugin {
   //
   public setHostApi({
     push,
-    pop,
     request,
     backgroundClient,
     connectionBackgroundClient,
@@ -267,7 +266,7 @@ export class Plugin {
 
   public mount(preference: XnftPreference | null, deepXnftPath: string) {
     this.createIframe(preference, deepXnftPath);
-    this.didFinishSetup!.then(() => {
+    void this.didFinishSetup!.then(() => {
       this.pushMountNotification();
     });
   }
