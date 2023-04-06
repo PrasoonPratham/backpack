@@ -18,7 +18,6 @@ import { Swap, SwapSelectToken } from "../../Unlocked/Swap";
 
 import {
   AddressSelectorLoader,
-  NftAddressSelector,
   TokenAddressSelector,
 } from "./TokensWidget/AddressSelector";
 import { Deposit } from "./TokensWidget/Deposit";
