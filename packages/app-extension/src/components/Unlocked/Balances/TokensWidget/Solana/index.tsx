@@ -394,7 +394,7 @@ export const isCardinalWrappedToken = async (
     return false;
   }
   try {
-    programs.transferAuthority.accounts.getTransferAuthority(
+    void programs.transferAuthority.accounts.getTransferAuthority(
       connection,
       tokenManagerData?.parsed.transferAuthority || new PublicKey("")
     );
