@@ -1,3 +1,5 @@
+import React from "react";
+
 import { SendWeiButton } from "./ethereum/SendWeiButton";
 import { SignMessageButton as EthereumSignMessageButton } from "./ethereum/SignMessageButton";
 import { NetworkSwitcher } from "./solana/ChangeNetwork";
