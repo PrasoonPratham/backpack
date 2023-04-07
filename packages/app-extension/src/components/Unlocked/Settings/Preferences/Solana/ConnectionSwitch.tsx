@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   SolanaCluster,
   UI_RPC_METHOD_SOLANA_CONNECTION_URL_UPDATE,
@@ -15,45 +15,56 @@ export function PreferencesSolanaConnection() {
   const background = useBackgroundClient();
   const currentUrl = useSolanaConnectionUrl();
   const nav = useNavigation();
+  const [customRPCs, setCustomRPCs] = useState<{ name: string; url: string }[]>(
+    []
+  );
 
   useEffect(() => {
     nav.setOptions({ headerTitle: "RPC Connection" });
+
+    // Load custom RPCs from local storage
+    const storedRPCs = localStorage.getItem("customRPCs");
+    if (storedRPCs) {
+      setCustomRPCs(JSON.parse(storedRPCs));
+    }
   }, [nav]);
 
-  const menuItems = {
-    "Mainnet (Beta)": {
-      onClick: () => changeNetwork(SolanaCluster.MAINNET),
-      detail: currentUrl === SolanaCluster.MAINNET ? <Checkmark /> : null,
-    },
-    Devnet: {
-      onClick: () => changeNetwork(SolanaCluster.DEVNET),
-      detail: currentUrl === SolanaCluster.DEVNET ? <Checkmark /> : null,
-    },
-    Localnet: {
-      onClick: () => changeNetwork(SolanaCluster.LOCALNET),
-      detail: currentUrl === SolanaCluster.LOCALNET ? <Checkmark /> : null,
-    },
-    Cascade: {
-      onClick: () => changeNetwork(SolanaCluster.CASCADE),
-      detail: currentUrl === SolanaCluster.CASCADE ? <Checkmark /> : null,
-    },
-    Custom: {
+  const getMenuItems = () => {
+    const menuItems: Record<string, any> = {};
+
+    const predefinedNetworks: Record<string, string> = {
+      "Mainnet (Beta)": SolanaCluster.MAINNET,
+      Devnet: SolanaCluster.DEVNET,
+      Localnet: SolanaCluster.LOCALNET,
+      Cascade: SolanaCluster.CASCADE,
+    };
+
+    for (const network in predefinedNetworks) {
+      menuItems[network] = {
+        onClick: () => changeNetwork(predefinedNetworks[network]),
+        detail:
+          currentUrl === predefinedNetworks[network] ? <Checkmark /> : null,
+      };
+    }
+
+    menuItems["Custom"] = {
       onClick: () => {
-        nav.push("preferences-solana-edit-rpc-connection");
+        nav.push("preferences-solana-edit-rpc-connection", {
+          onAdd: addCustomRPC,
+        });
       },
-      detail:
-        currentUrl !== SolanaCluster.MAINNET &&
-        currentUrl !== SolanaCluster.DEVNET &&
-        currentUrl !== SolanaCluster.LOCALNET &&
-        currentUrl !== SolanaCluster.CASCADE ? (
-          <>
-            <Checkmark />
-            <PushDetail />
-          </>
-        ) : (
-          <PushDetail />
-        ),
-    },
+      detail: <PushDetail />,
+    };
+
+    // Add custom RPCs to the menuItems
+    customRPCs.forEach((rpc) => {
+      menuItems[rpc.name] = {
+        onClick: () => changeNetwork(rpc.url),
+        detail: currentUrl === rpc.url ? <Checkmark /> : null,
+      };
+    });
+
+    return menuItems;
   };
 
   const changeNetwork = (url: string) => {
@@ -69,7 +80,16 @@ export function PreferencesSolanaConnection() {
     }
   };
 
-  return <SettingsList menuItems={menuItems} />;
+  const addCustomRPC = (name: string, url: string) => {
+    // Add the new custom RPC to local storage and update the state
+    const updatedCustomRPCs = [...customRPCs, { name, url }];
+    localStorage.setItem("customRPCs", JSON.stringify(updatedCustomRPCs));
+    setCustomRPCs(updatedCustomRPCs);
+  };
+
+  return (
+    <SettingsList key={JSON.stringify(customRPCs)} menuItems={getMenuItems()} />
+  );
 }
 
 export function Checkmark() {
