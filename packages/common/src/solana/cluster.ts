@@ -3,6 +3,7 @@ export const SolanaCluster = {
   MAINNET: DEFAULT_SOLANA_CLUSTER,
   DEVNET: "https://api.devnet.solana.com",
   LOCALNET: "http://localhost:8899",
+  CASCADE: "https://api.injective.eclipsenetwork.xyz/",
 
   DEFAULT: process.env.DEFAULT_SOLANA_CONNECTION_URL || DEFAULT_SOLANA_CLUSTER,
 };

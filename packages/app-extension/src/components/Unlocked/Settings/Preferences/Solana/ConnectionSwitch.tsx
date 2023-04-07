@@ -33,6 +33,10 @@ export function PreferencesSolanaConnection() {
       onClick: () => changeNetwork(SolanaCluster.LOCALNET),
       detail: currentUrl === SolanaCluster.LOCALNET ? <Checkmark /> : null,
     },
+    Cascade: {
+      onClick: () => changeNetwork(SolanaCluster.CASCADE),
+      detail: currentUrl === SolanaCluster.CASCADE ? <Checkmark /> : null,
+    },
     Custom: {
       onClick: () => {
         nav.push("preferences-solana-edit-rpc-connection");
@@ -40,7 +44,8 @@ export function PreferencesSolanaConnection() {
       detail:
         currentUrl !== SolanaCluster.MAINNET &&
         currentUrl !== SolanaCluster.DEVNET &&
-        currentUrl !== SolanaCluster.LOCALNET ? (
+        currentUrl !== SolanaCluster.LOCALNET &&
+        currentUrl !== SolanaCluster.CASCADE ? (
           <>
             <Checkmark />
             <PushDetail />
