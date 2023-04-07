@@ -29,43 +29,38 @@ export function PreferencesSolanaConnection() {
     }
   }, [nav]);
 
-  const getMenuItems = () => {
-    const menuItems: Record<string, any> = {};
+  const menuItems: Record<string, any> = {};
 
-    const predefinedNetworks: Record<string, string> = {
-      "Mainnet (Beta)": SolanaCluster.MAINNET,
-      Devnet: SolanaCluster.DEVNET,
-      Localnet: SolanaCluster.LOCALNET,
-      Cascade: SolanaCluster.CASCADE,
-    };
-
-    for (const network in predefinedNetworks) {
-      menuItems[network] = {
-        onClick: () => changeNetwork(predefinedNetworks[network]),
-        detail:
-          currentUrl === predefinedNetworks[network] ? <Checkmark /> : null,
-      };
-    }
-
-    menuItems["Custom"] = {
-      onClick: () => {
-        nav.push("preferences-solana-edit-rpc-connection", {
-          onAdd: addCustomRPC,
-        });
-      },
-      detail: <PushDetail />,
-    };
-
-    // Add custom RPCs to the menuItems
-    customRPCs.forEach((rpc) => {
-      menuItems[rpc.name] = {
-        onClick: () => changeNetwork(rpc.url),
-        detail: currentUrl === rpc.url ? <Checkmark /> : null,
-      };
-    });
-
-    return menuItems;
+  const predefinedNetworks: Record<string, string> = {
+    "Mainnet (Beta)": SolanaCluster.MAINNET,
+    Devnet: SolanaCluster.DEVNET,
+    Localnet: SolanaCluster.LOCALNET,
+    Cascade: SolanaCluster.CASCADE,
   };
+
+  for (const network in predefinedNetworks) {
+    menuItems[network] = {
+      onClick: () => changeNetwork(predefinedNetworks[network]),
+      detail: currentUrl === predefinedNetworks[network] ? <Checkmark /> : null,
+    };
+  }
+
+  menuItems["Custom"] = {
+    onClick: () => {
+      nav.push("preferences-solana-edit-rpc-connection", {
+        onAdd: addCustomRPC,
+      });
+    },
+    detail: <PushDetail />,
+  };
+
+  // Add custom RPCs to the menuItems
+  customRPCs.forEach((rpc) => {
+    menuItems[rpc.name] = {
+      onClick: () => changeNetwork(rpc.url),
+      detail: currentUrl === rpc.url ? <Checkmark /> : null,
+    };
+  });
 
   const changeNetwork = (url: string) => {
     try {
@@ -87,9 +82,7 @@ export function PreferencesSolanaConnection() {
     setCustomRPCs(updatedCustomRPCs);
   };
 
-  return (
-    <SettingsList key={JSON.stringify(customRPCs)} menuItems={getMenuItems()} />
-  );
+  return <SettingsList menuItems={menuItems} />;
 }
 
 export function Checkmark() {
