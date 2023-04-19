@@ -54,9 +54,7 @@ export default function Router() {
     <WithSuspense>
       <>
         <ToastContainer
-          toastStyle={{
-            backgroundColor: theme.custom.colors.switchTokensButton,
-          }}
+          toastStyle={{ backgroundColor: theme.custom.colors.swapTokensButton }}
           theme={isDarkMode ? "dark" : "light"}
         />
         <_Router />

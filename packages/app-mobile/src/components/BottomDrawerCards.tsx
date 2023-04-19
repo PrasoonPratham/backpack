@@ -34,7 +34,7 @@ export function Container({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 0,
+    paddingHorizontal: 16,
   },
 });
 
@@ -179,9 +179,7 @@ export function Error({
       <IconContainer>
         <CrossIcon />
       </IconContainer>
-      <Box mb={16}>
-        <Text style={{ color: theme.custom.colors.fontColor }}>{error}</Text>
-      </Box>
+      <Text style={{ color: theme.custom.colors.fontColor }}>{error}</Text>
       {explorer && connectionUrl && signature ? (
         <SecondaryButton
           label="View Explorer"

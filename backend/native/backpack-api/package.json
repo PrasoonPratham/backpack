@@ -52,8 +52,7 @@
   "devDependencies": {
     "@types/passport": "^1.0.12",
     "@types/passport-twitter": "^1.0.37",
-    "eslint-config-custom": "*",
-    "vitest": "^0.29.8"
+    "eslint-config-custom": "*"
   },
   "scripts": {
     "build": "esbuild ./src/index.js --bundle --platform=node --outfile=dist/index.js",

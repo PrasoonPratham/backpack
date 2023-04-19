@@ -1,6 +1,10 @@
 import { insertNotification } from "@coral-xyz/backend-common";
 import type { RemoteUserData } from "@coral-xyz/common";
-import { AVATAR_BASE_URL, NOTIFICATION_ADD } from "@coral-xyz/common";
+import {
+  AVATAR_BASE_URL,
+  EXECUTE_BARTER,
+  NOTIFICATION_ADD,
+} from "@coral-xyz/common";
 import express from "express";
 
 import { extractUserId } from "../../auth/middleware";
@@ -22,8 +26,11 @@ import { enrichFriendships } from "./inbox";
 const router = express.Router();
 
 router.post("/spam", extractUserId, async (req, res) => {
-  const uuid = req.id!; // TODO from from
-  const to: string = req.body.to!;
+  //@ts-ignore
+  const uuid: string = req.id; // TODO from from
+  // @ts-ignore
+  const to: string = req.body.to;
+  // @ts-ignore
 
   if (uuid === to) {
     res.status(411).json({
@@ -37,8 +44,11 @@ router.post("/spam", extractUserId, async (req, res) => {
 });
 
 router.post("/block", extractUserId, async (req, res) => {
-  const uuid = req.id!; // TODO from from
-  const to: string = req.body.to!;
+  //@ts-ignore
+  const uuid: string = req.id; // TODO from from
+  // @ts-ignore
+  const to: string = req.body.to;
+  // @ts-ignore
 
   if (uuid === to) {
     res.status(411).json({
@@ -52,8 +62,12 @@ router.post("/block", extractUserId, async (req, res) => {
 });
 
 router.post("/unfriend", extractUserId, async (req, res) => {
-  const uuid = req.id!; // TODO from from
-  const to: string = req.body.to!;
+  //@ts-ignore
+  const uuid: string = req.id; // TODO from from
+  // @ts-ignore
+  const to: string = req.body.to;
+  // @ts-ignore
+
   if (uuid === to) {
     res.status(411).json({
       msg: "To and from cant be the same",
@@ -65,11 +79,13 @@ router.post("/unfriend", extractUserId, async (req, res) => {
 });
 
 router.get("/sent", extractUserId, async (req, res) => {
-  const uuid = req.id!;
+  // @ts-ignore
+  const uuid: string = req.id;
+
   const requestedUserIds = await getSentRequests({ uuid });
   const users = await getUsers(requestedUserIds);
-  const requestedWithMetadata: Omit<RemoteUserData, "public_keys">[] =
-    requestedUserIds.map((userId) => ({
+  const requestedWithMetadata: RemoteUserData[] = requestedUserIds.map(
+    (userId) => ({
       id: userId,
       username: users.find((x) => x.id === userId)?.username as string,
       image: `${AVATAR_BASE_URL}/${
@@ -78,16 +94,19 @@ router.get("/sent", extractUserId, async (req, res) => {
       areFriends: false,
       remoteRequested: false,
       requested: true,
-    }));
+    })
+  );
   res.json({ requests: requestedWithMetadata });
 });
 
 router.get("/requests", extractUserId, async (req, res) => {
-  const uuid = req.id!; // TODO from from
+  //@ts-ignore
+  const uuid: string = req.id; // TODO from from
+
   const requestUserIds = await getReceivedRequests({ uuid });
   const users = await getUsers(requestUserIds);
-  const requestsWithMetadata: Omit<RemoteUserData, "public_keys">[] =
-    requestUserIds.map((requestUserId) => ({
+  const requestsWithMetadata: RemoteUserData[] = requestUserIds.map(
+    (requestUserId) => ({
       id: requestUserId,
       username: users.find((x) => x.id === requestUserId)?.username as string,
       image: `${AVATAR_BASE_URL}/${
@@ -96,13 +115,19 @@ router.get("/requests", extractUserId, async (req, res) => {
       areFriends: false,
       remoteRequested: true,
       requested: false,
-    }));
-  res.json({ requests: requestsWithMetadata });
+    })
+  );
+  res.json({
+    requests: requestsWithMetadata,
+  });
 });
 
 router.post("/request", extractUserId, async (req, res) => {
-  const uuid = req.id!; // TODO from from
-  const to: string = req.body.to!;
+  //@ts-ignore
+  const uuid: string = req.id; // TODO from from
+  // @ts-ignore
+  const to: string = req.body.to;
+  // @ts-ignore
 
   if (uuid === to) {
     res.status(411).json({
@@ -111,8 +136,8 @@ router.post("/request", extractUserId, async (req, res) => {
     return;
   }
   const sendRequest: boolean = req.body.sendRequest;
-  const areFriends = await setFriendship({ from: uuid, to, sendRequest });
 
+  const areFriends = await setFriendship({ from: uuid, to, sendRequest });
   if (sendRequest) {
     if (areFriends) {
       // entry in DB
@@ -174,7 +199,8 @@ router.post("/request", extractUserId, async (req, res) => {
 });
 
 router.get("/all", extractUserId, async (req, res) => {
-  const uuid = req.id!; // TODO from from
+  //@ts-ignore
+  const uuid: string = req.id; // TODO from from
 
   try {
     const friends = await getAllFriends({
@@ -189,8 +215,11 @@ router.get("/all", extractUserId, async (req, res) => {
 });
 
 router.get("/", extractUserId, async (req, res) => {
-  const uuid = req.id!; // TODO from from
-  const userId = req.query.userId as string;
+  //@ts-ignore
+  const uuid: string = req.id; // TODO from from
+  // @ts-ignore
+  const userId: string = req.query.userId;
+  // @ts-ignore
 
   if (userId === uuid) {
     res.json({
@@ -204,7 +233,7 @@ router.get("/", extractUserId, async (req, res) => {
       from: uuid,
       to: userId,
     });
-    const user = await getUser(userId, true);
+    const user = await getUser(userId);
     res.json({
       user,
       are_friends,

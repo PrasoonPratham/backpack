@@ -2,17 +2,31 @@ import type { Nft, NftCollection } from "@coral-xyz/common";
 import type { StackScreenProps } from "@react-navigation/stack";
 import type { UnwrapRecoilValue } from "recoil";
 
-import { FlatList, View, ActivityIndicator } from "react-native";
+import React, { useState } from "react";
+import {
+  SectionList,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 
 import * as Linking from "expo-linking";
 
-import { parseNftName } from "@coral-xyz/common";
 import {
+  // isAggregateWallets,
   nftCollectionsWithIds,
   useActiveWallet,
+  // allWalletsDisplayed,
   nftById,
   useAllWallets,
   useBlockchainConnectionUrl,
+  // useNavigation,
+  // useUser,
 } from "@coral-xyz/recoil";
 import { MaterialIcons } from "@expo/vector-icons";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -69,7 +83,7 @@ function NftCollectionCard({
       connectionUrl,
       nftId: collectionDisplayNftId,
     })
-  ) || { name: "", collectionName: "", id: "", imageUrl: "", itemIds: [] };
+  );
 
   const onPressCollectionCard = () => {
     if (collection.itemIds.length === 1) {
@@ -265,9 +279,7 @@ type NftStackParamList = {
     publicKey: string;
     connectionUrl: string;
   };
-  SendNFT: {
-    nft: Nft;
-  };
+  SendNFT: undefined;
 };
 
 const Stack = createStackNavigator<NftStackParamList>();
@@ -302,17 +314,7 @@ export function NftCollectiblesNavigator(): JSX.Element {
           headerTintColor: theme.custom.colors.fontColor,
         })}
       />
-      <Stack.Screen
-        name="SendNFT"
-        component={NftDetailSendScreen}
-        options={({ route }) => {
-          const name = parseNftName(route.params.nft);
-          return {
-            title: `Send ${name}`,
-            headerTintColor: theme.custom.colors.fontColor,
-          };
-        }}
-      />
+      <Stack.Screen name="SendNFT" component={NftDetailSendScreen} />
     </Stack.Navigator>
   );
 }

@@ -2,7 +2,6 @@ import type { V4SwapPostRequest } from "@jup-ag/api";
 import { Connection } from "@solana/web3.js";
 import { createClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { importSPKI, jwtVerify } from "jose";
 
 import ACCOUNTS from "./feeAccounts.json";
@@ -10,8 +9,6 @@ import ACCOUNTS from "./feeAccounts.json";
 type MintAddress = keyof typeof ACCOUNTS | undefined;
 
 const app = new Hono();
-
-app.use("*", cors());
 
 // start routes ----------------------------------------
 

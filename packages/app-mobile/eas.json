@@ -59,9 +59,7 @@
   "submit": {
     "production": {
       "ios": {
-        "appName": "Backpack Crypto Wallet",
-        "ascAppId": "6445964121",
-        "appleTeamId": "3BZAP22DU6"
+        "appName": "Backpack Crypto Wallet"
       }
     }
   }

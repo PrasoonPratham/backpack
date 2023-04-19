@@ -1,5 +1,4 @@
 import {
-  BAKED_IN_XNFTS,
   Blockchain,
   DEFAULT_PUBKEY_STR,
   externalResourceUri,
@@ -216,14 +215,14 @@ export const filteredPlugins = selectorFamily<
         (xnft) =>
           // hide autoinstalled ONE xNft -> entrypoint in collectibles.
           xnft.install.account.xnft.toString() !==
-            BAKED_IN_XNFTS.one.publicKey &&
+            "CkqWjTWzRMAtYN3CSs8Gp4K9H891htmaN1ysNXqcULc8" &&
           // hide autoinstalled Explorer xNFT and the Mnemonic Inspect xNFT if not in devmode
           (developerMode ||
             xnft.install.account.xnft.toString() !==
-              BAKED_IN_XNFTS.explorer.publicKey) &&
+              "oRN37pXigdDzpSPTe9ma5UWz9pZ4srKgS8To3juBNRi") &&
           (developerMode ||
             xnft.install.account.xnft.toString() !==
-              BAKED_IN_XNFTS.mnemonics.publicKey)
+              "GUt1LFqrs5Wbp6b6jLK1rXUvQKEavmAvM2UjAYWwJsNh")
       );
     },
 });

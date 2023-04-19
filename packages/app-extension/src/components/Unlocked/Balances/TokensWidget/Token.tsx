@@ -128,13 +128,11 @@ function TokenHeader({
           amount={token.nativeBalance}
           displayLogo={false}
         />
-        {token.priceData ? (
-          <Typography className={classes.usdBalanceLabel}>
-            ${parseFloat(token.usdBalance.toFixed(2)).toLocaleString()}
-            &nbsp;&nbsp;&nbsp;
-            <span className={percentClass}>{token.recentPercentChange}%</span>
-          </Typography>
-        ) : null}
+        <Typography className={classes.usdBalanceLabel}>
+          ${parseFloat(token.usdBalance.toFixed(2)).toLocaleString()}
+          &nbsp;&nbsp;&nbsp;
+          <span className={percentClass}>{token.recentPercentChange}%</span>
+        </Typography>
       </div>
       <div className={classes.tokenHeaderButtonContainer}>
         <TransferWidget

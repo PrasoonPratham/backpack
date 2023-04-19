@@ -50,7 +50,7 @@ function TokenHeader({
   }
 
   return (
-    <View>
+    <ScrollView>
       <View>
         <TokenAmountHeader
           token={token}
@@ -74,7 +74,7 @@ function TokenHeader({
           }
         />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -102,15 +102,13 @@ function BalanceDetailScreen({
 
   return (
     <Screen>
-      <View>
-        <TokenHeader
-          blockchain={blockchain}
-          address={tokenAddress}
-          onPressOption={(route: string, options: NavTokenOptions) => {
-            navigation.push(route, options);
-          }}
-        />
-      </View>
+      <TokenHeader
+        blockchain={blockchain}
+        address={tokenAddress}
+        onPressOption={(route: string, options: NavTokenOptions) => {
+          navigation.push(route, options);
+        }}
+      />
       <RecentActivityList
         blockchain={blockchain}
         address={activityAddress}

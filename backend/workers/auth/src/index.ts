@@ -108,23 +108,11 @@ app.get("/users/:username/info", async (c) => {
   const res = await chain("query")({
     auth_users: [
       {
-        where: {
-          username: { _eq: username },
-          public_keys: { is_primary: { _eq: true } },
-        },
+        where: { username: { _eq: username } },
         limit: 1,
       },
       {
-        public_keys: [
-          {
-            where: { is_primary: { _eq: true } },
-          },
-          {
-            public_key: true,
-            blockchain: true,
-            is_primary: true,
-          },
-        ],
+        public_keys: [{}, { blockchain: true, public_key: true }],
       },
     ],
   });

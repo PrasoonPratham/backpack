@@ -27,7 +27,7 @@ import {
   useSwapContext,
 } from "@coral-xyz/recoil";
 import { styles, useCustomTheme } from "@coral-xyz/themes";
-import { ExpandMore, SwapVert as SwitchIcon } from "@mui/icons-material";
+import { ExpandMore, SwapVert } from "@mui/icons-material";
 import Info from "@mui/icons-material/Info";
 import {
   IconButton,
@@ -37,7 +37,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { BigNumberish } from "ethers";
-import { ethers,FixedNumber } from "ethers";
+import { ethers, FixedNumber } from "ethers";
 
 import { Button as XnftButton } from "../../plugin/Component";
 import { TextField } from "../common";
@@ -120,8 +120,8 @@ const useStyles = styles((theme) => ({
       WebkitTextFillColor: `${theme.custom.colors.secondary} !important`,
     },
   },
-  switchTokensContainer: {
-    backgroundColor: theme.custom.colors.switchTokensButton,
+  swapTokensContainer: {
+    backgroundColor: theme.custom.colors.swapTokensButton,
     width: "44px",
     height: "44px",
     zIndex: 2,
@@ -129,22 +129,16 @@ const useStyles = styles((theme) => ({
     justifyContent: "center",
     flexDirection: "column",
     borderRadius: "22px",
-    position: "fixed",
-    top: 175,
-    left: 24,
   },
-  switchTokensButton: {
+  swapTokensButton: {
     border: `${theme.custom.colors.borderFull}`,
     width: "44px",
     height: "44px",
     marginLeft: "auto",
     marginRight: "auto",
   },
-  switchIcon: {
+  swapIcon: {
     color: theme.custom.colors.icon,
-  },
-  cannotSwitch: {
-    border: "2px solid red",
   },
   loadingContainer: {
     backgroundColor: theme.custom.colors.nav,
@@ -258,11 +252,15 @@ export function Swap({ blockchain }: { blockchain: Blockchain }) {
 function _Swap() {
   const isDark = useDarkMode();
   const classes = useStyles();
-  const { swapToFromMints, fromToken, canSwitch } = useSwapContext();
+  const { swapToFromMints, fromToken } = useSwapContext();
   const [openDrawer, setOpenDrawer] = useState(false);
   const { close } = useDrawerContext();
 
   const isLoading = !fromToken;
+
+  const onSwapButtonClick = () => {
+    swapToFromMints();
+  };
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -283,7 +281,14 @@ function _Swap() {
         noValidate
       >
         <div className={classes.topHalf}>
-          <SwitchTokensButton disabled={!canSwitch} onClick={swapToFromMints} />
+          <SwapTokensButton
+            onClick={onSwapButtonClick}
+            style={{
+              position: "fixed",
+              top: "175px",
+              left: "24px",
+            }}
+          />
           {isLoading ? (
             <Skeleton height={80} style={{ borderRadius: "12px" }} />
           ) : (
@@ -829,24 +834,22 @@ const SwapInfoRow = ({ label, value, tooltip }: SwapInfoRowProps) => {
   );
 };
 
-function SwitchTokensButton({
+function SwapTokensButton({
   onClick,
-  disabled = false,
+  style,
 }: {
   onClick: () => void;
-  disabled?: Boolean;
+  style: any;
 }) {
   const classes = useStyles();
-
   return (
-    <div className={classes.switchTokensContainer}>
+    <div className={classes.swapTokensContainer} style={style}>
       <IconButton
         disableRipple
-        className={classes.switchTokensButton}
+        className={classes.swapTokensButton}
         onClick={onClick}
-        disabled={Boolean(disabled)}
       >
-        <SwitchIcon className={classes.switchIcon} />
+        <SwapVert className={classes.swapIcon} />
       </IconButton>
     </div>
   );

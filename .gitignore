@@ -30,6 +30,7 @@ dist/
 .turbo
 .env
 .idea
+deptool-report.html
 test-ledger/
 
 .expo
@@ -56,3 +57,5 @@ test-ledger/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+yarn.lock
+yarn.lock

@@ -2,13 +2,7 @@ import { List, ListItem, PushDetail } from "@coral-xyz/react-common";
 import { useCustomTheme } from "@coral-xyz/themes";
 import { Typography } from "@mui/material";
 
-export function SettingsList({
-  style,
-  menuItems,
-  textStyle,
-  borderColor,
-  className,
-}: {
+type SettingsListProps = {
   style?: React.CSSProperties;
   textStyle?: React.CSSProperties;
   borderColor?: string;
@@ -25,7 +19,15 @@ export function SettingsList({
     };
   };
   className?: string;
-}) {
+};
+
+export function SettingsList({
+  style,
+  menuItems,
+  textStyle,
+  borderColor,
+  className,
+}: SettingsListProps) {
   const theme = useCustomTheme();
   return (
     <List
