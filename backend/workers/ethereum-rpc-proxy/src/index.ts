@@ -2,7 +2,6 @@ export interface Env {
   // in secrets, see `npx wrangler secret --help`
   RPC_URL: string;
   NFT_RPC_URL: string;
-  ALCHEMY_API_KEY: string;
 }
 
 export default {
@@ -21,7 +20,7 @@ export default {
     if (request.method === "POST") {
       return await fetch(
         env.RPC_URL ||
-          `https://eth-mainnet.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}`,
+          "https://eth-mainnet.g.alchemy.com/v2/DlJr6QuBC2EaE-L60-iqQQGq9hi9-XSZ",
         request
       );
     } else {
@@ -29,7 +28,7 @@ export default {
       if (request.method === "GET" && service === "nft") {
         const newUrl =
           env.NFT_RPC_URL ||
-          `https://eth-mainnet.g.alchemy.com/nft/v2/${env.ALCHEMY_API_KEY}`;
+          "https://eth-mainnet.g.alchemy.com/nft/v2/DlJr6QuBC2EaE-L60-iqQQGq9hi9-XSZ";
         return await fetch(
           newUrl + url.pathname + url.search + url.hash,
           request

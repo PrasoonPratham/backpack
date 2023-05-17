@@ -6,11 +6,7 @@ import {
   STRIPE_ENABLED,
 } from "@coral-xyz/common";
 import { Dollar } from "@coral-xyz/react-common";
-import {
-  SwapProvider,
-  useFeatureGates,
-  useSwapContext,
-} from "@coral-xyz/recoil";
+import { SwapProvider, useFeatureGates } from "@coral-xyz/recoil";
 import { useCustomTheme } from "@coral-xyz/themes";
 import { ArrowDownward, ArrowUpward, SwapHoriz } from "@mui/icons-material";
 import { Typography } from "@mui/material";
@@ -104,39 +100,27 @@ function SwapButton({
     />
   );
 
-  const SwapButtonIfTheTokenIsSwappable = () => {
-    // This component loads inside Suspense, so it should not block
-    // rendering as we wait for Jupiter Routes to be downloaded and parsed
-    const { canSwap } = useSwapContext();
-    return canSwap ? (
-      <SwapButtonComponent
-        routes={[
-          {
-            name: "swap",
-            component: (props: any) => <Swap {...props} />,
-            title: `Swap`,
-            props: {
-              blockchain,
-            },
-          },
-          {
-            title: `Select Token`,
-            name: "select-token",
-            component: (props: any) => <SwapSelectToken {...props} />,
-          },
-        ]}
-      />
-    ) : // There are no Jupiter Routes for this token, so hide the button
-    null;
-  };
-
-  // This displays a semi-transparent Swap button while Jupiter routes are
-  // first downloaded and parsed. After that it will either make the button
-  // fully opaque and clickable or hide it if the token isn't supported
+  // Wrap in Suspense so it doesn't block if Jupiter is slow or down.
   return (
     <React.Suspense fallback={<SwapButtonComponent />}>
       <SwapProvider tokenAddress={address}>
-        <SwapButtonIfTheTokenIsSwappable />
+        <SwapButtonComponent
+          routes={[
+            {
+              name: "swap",
+              component: (props: any) => <Swap {...props} />,
+              title: `Swap`,
+              props: {
+                blockchain,
+              },
+            },
+            {
+              title: `Select Token`,
+              name: "select-token",
+              component: (props: any) => <SwapSelectToken {...props} />,
+            },
+          ]}
+        />
       </SwapProvider>
     </React.Suspense>
   );

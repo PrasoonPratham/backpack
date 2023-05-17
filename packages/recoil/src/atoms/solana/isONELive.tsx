@@ -15,7 +15,8 @@ export const isOneLive = selector<{
   key: "isOneLive",
   get: async ({ get }) => {
     const wallet = get(activeWallet);
-    if (wallet?.blockchain !== Blockchain.SOLANA) {
+    const user = get(authenticatedUser);
+    if (wallet?.blockchain !== Blockchain.SOLANA || !user) {
       return { isLive: false };
     }
     return (

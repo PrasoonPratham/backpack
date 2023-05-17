@@ -1,5 +1,8 @@
+import React from "react";
+
 import { SendWeiButton } from "./ethereum/SendWeiButton";
 import { SignMessageButton as EthereumSignMessageButton } from "./ethereum/SignMessageButton";
+import { NetworkSwitcher } from "./solana/ChangeNetwork";
 import { OpenXnftButton } from "./solana/OpenXnftButton";
 import { SendAllButton } from "./solana/SendAllButton";
 import { SendLamportButton } from "./solana/SendLamportButton";
@@ -18,6 +21,7 @@ function App() {
         <SendTokenButton />
         <SignMessageButton />
         <OpenXnftButton />
+        <NetworkSwitcher />
       </SolanaWallet>
 
       <h1>Ethereum</h1>

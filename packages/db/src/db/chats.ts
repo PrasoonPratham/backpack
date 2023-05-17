@@ -108,8 +108,8 @@ export const createOrUpdateCollection = async (
 ) => {
   const db = getDb(uuid);
   if (await db.collections.get(data.collectionId)) {
-    return db.collections.update(data.collectionId, data);
+    db.collections.update(data.collectionId, data);
   } else {
-    return db.collections.put(data);
+    db.collections.put(data);
   }
 };

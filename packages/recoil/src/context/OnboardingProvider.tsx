@@ -343,6 +343,7 @@ export function OnboardingProvider({
       try {
         const res = await fetch(`${BACKEND_API_URL}/users`, {
           method: "POST",
+          credentials: "omit",
           body,
           headers: {
             "Content-Type": "application/json",

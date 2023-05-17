@@ -153,7 +153,3 @@ export function isMadLads(creators: Nft["creators"]) {
     secondCreator?.address === "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW"
   );
 }
-
-export function parseNftName(nft: Nft): string {
-  return nft.name !== "" ? nft.name : nft.collectionName;
-}

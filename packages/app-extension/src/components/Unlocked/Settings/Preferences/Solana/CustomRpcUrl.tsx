@@ -11,6 +11,7 @@ export function PreferenceSolanaCustomRpcUrl() {
   const nav = useNavigation();
   const background = useBackgroundClient();
   const [rpcUrl, setRpcUrl] = useState("");
+  const [name, setName] = useState("");
 
   const [rpcUrlError, setRpcUrlError] = useState(false);
 
@@ -56,6 +57,23 @@ export function PreferenceSolanaCustomRpcUrl() {
         style={{ display: "flex", height: "100%", flexDirection: "column" }}
       >
         <div style={{ flex: 1, flexGrow: 1 }}>
+          <div style={{ marginBottom: "16px" }}>
+            {" "}
+            {/* Add marginBottom to the wrapper */}
+            <Inputs error={rpcUrlError}>
+              <InputListItem
+                isFirst
+                isLast
+                button={false}
+                title="Chain"
+                placeholder="Name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+            </Inputs>
+          </div>
           <Inputs error={rpcUrlError}>
             <InputListItem
               isFirst
@@ -73,7 +91,7 @@ export function PreferenceSolanaCustomRpcUrl() {
         <div style={{ padding: 16 }}>
           <PrimaryButton
             disabled={!rpcUrl || rpcUrlError}
-            label="Switch"
+            label="Add chain"
             type="submit"
           />
         </div>

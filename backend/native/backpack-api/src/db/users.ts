@@ -56,36 +56,90 @@ export const getUsers = async (
   // hotfix: empty array returns all records
   if (userIds.filter(Boolean).length === 0) return [];
 
-  const { auth_users } = await chain("query")(
+  const response = await chain("query")(
     {
       auth_users: [
         {
-          where: {
-            id: { _in: userIds },
-            public_keys: { is_primary: { _eq: true } },
-          },
+          where: { id: { _in: userIds } },
         },
         {
           id: true,
           username: true,
-          public_keys: [
-            {
-              where: { is_primary: { _eq: true } },
+        },
+      ],
+      auth_public_keys: [
+        {
+          where: { user_id: { _in: userIds } },
+        },
+        {
+          public_key: true,
+          id: true,
+          blockchain: true,
+          user_id: true,
+        },
+      ],
+      auth_user_active_publickey_mapping: [
+        {
+          where: {
+            user_id: {
+              _in: userIds,
             },
-            {
-              public_key: true,
-              id: true,
-              blockchain: true,
-              is_primary: true,
-            },
-          ],
+          },
+        },
+        {
+          user_id: true,
+          public_key_id: true,
         },
       ],
     },
     { operationName: "getUsers" }
   );
 
-  return auth_users.map((x) => transformUser(x, true));
+  const publicKeyMapping: { [public_key_id: string]: true } = {};
+  const userToPublicKeyMapping: {
+    [user_id: string]: {
+      public_key: string;
+      id: number;
+      blockchain: string;
+    }[];
+  } = {};
+
+  response.auth_user_active_publickey_mapping.map((x) => {
+    publicKeyMapping[x.public_key_id] = true;
+  });
+
+  response.auth_public_keys.map((x) => {
+    //@ts-ignore
+    const userId: string = x.user_id;
+    if (!userToPublicKeyMapping[userId]) {
+      userToPublicKeyMapping[userId] = [];
+    }
+    userToPublicKeyMapping[userId].push({
+      public_key: x.public_key,
+      blockchain: x.blockchain,
+      id: x.id,
+    });
+  });
+
+  const transformUserResponseInput = response.auth_users.map(
+    (userResponse) => ({
+      id: userResponse.id,
+      username: userResponse.username,
+      public_keys:
+        userToPublicKeyMapping[userResponse.id as string].map((x) => ({
+          blockchain: x.blockchain,
+          public_key: x.public_key,
+          user_active_publickey_mappings: publicKeyMapping[x.id]
+            ? [
+                {
+                  user_id: userResponse.id as string,
+                },
+              ]
+            : undefined,
+        })) || [],
+    })
+  );
+  return transformUsers(transformUserResponseInput, true);
 };
 
 /**
@@ -135,26 +189,23 @@ export const getUsersByPublicKeys = async (
  * Get a user by their username.
  */
 export const getUserByUsername = async (username: string) => {
-  const { auth_users } = await chain("query")(
+  const response = await chain("query")(
     {
       auth_users: [
         {
           limit: 1,
-          where: {
-            username: { _eq: username },
-            public_keys: { is_primary: { _eq: true } },
-          },
+          where: { username: { _eq: username } },
         },
         {
           id: true,
           username: true,
           public_keys: [
-            { where: { is_primary: { _eq: true } } },
+            {},
             {
-              id: true,
               blockchain: true,
+              id: true,
               public_key: true,
-              is_primary: true,
+              user_active_publickey_mappings: [{}, { user_id: true }],
             },
           ],
         },
@@ -162,10 +213,10 @@ export const getUserByUsername = async (username: string) => {
     },
     { operationName: "getUserByUsername" }
   );
-  if (!auth_users[0]) {
+  if (!response.auth_users[0]) {
     throw new Error("user not found");
   }
-  return transformUser(auth_users[0], true);
+  return transformUser(response.auth_users[0]);
 };
 
 /**
@@ -187,7 +238,7 @@ export const getUser = async (id: string, onlyActiveKeys?: boolean) => {
               blockchain: true,
               id: true,
               public_key: true,
-              is_primary: true,
+              user_active_publickey_mappings: [{}, { user_id: true }],
             },
           ],
         },
@@ -221,6 +272,20 @@ export const getReferrer = async (userId: string) => {
   return auth_users_by_pk?.referrer;
 };
 
+const transformUsers = (
+  users: {
+    id: unknown;
+    username: unknown;
+    public_keys: Array<{
+      blockchain: string;
+      public_key: string;
+      user_active_publickey_mappings?: { user_id: string }[];
+    }>;
+  }[],
+  onlyActiveKeys?: boolean
+) => {
+  return users.map((x) => transformUser(x, onlyActiveKeys));
+};
 /**
  * Utility method to format a user for responses from a raw user object.
  */
@@ -231,7 +296,7 @@ const transformUser = (
     public_keys: Array<{
       blockchain: string;
       public_key: string;
-      is_primary?: boolean;
+      user_active_publickey_mappings?: { user_id: string }[];
     }>;
   },
   onlyActiveKeys?: boolean
@@ -244,7 +309,8 @@ const transformUser = (
       .map((k) => ({
         blockchain: k.blockchain as Blockchain,
         publicKey: k.public_key,
-        primary: Boolean(k.is_primary),
+        primary:
+          k.user_active_publickey_mappings?.length || 0 >= 1 ? true : false,
       }))
       .filter((x) => {
         if (onlyActiveKeys && !x.primary) {
@@ -331,42 +397,32 @@ export const createUser = async (
 export async function getUsersByPrefix({
   usernamePrefix,
   uuid,
-  limit = 25,
+  limit,
 }: {
   usernamePrefix: string;
   uuid: string;
   limit?: number;
-}) {
-  const { auth_users_whose_username_matches: users } = await chain("query")(
+}): Promise<{ username: string; id: string }[]> {
+  const response = await chain("query")(
     {
-      auth_users_whose_username_matches: [
+      auth_users: [
         {
-          args: {
-            prefix: usernamePrefix,
-          },
           where: {
+            username: { _like: `${usernamePrefix}%` },
             id: { _neq: uuid },
-            public_keys: { is_primary: { _eq: true } },
           },
-          limit,
+          limit: limit || 25,
         },
         {
           id: true,
           username: true,
-          public_keys: [
-            { where: { is_primary: { _eq: true } } },
-            {
-              blockchain: true,
-              public_key: true,
-            },
-          ],
         },
       ],
     },
     { operationName: "getUsersByPrefix" }
   );
 
-  return users;
+  return response.auth_users || [];
 }
 
 /**
@@ -485,7 +541,12 @@ export async function updateUserAvatar({
 export const getUserByPublicKeyAndChain = async (
   publicKey: string,
   blockchain: Blockchain
-) => {
+): Promise<
+  {
+    id: string;
+    username: string;
+  }[]
+> => {
   const response = await chain("query")(
     {
       auth_users: [
@@ -494,20 +555,18 @@ export const getUserByPublicKeyAndChain = async (
             public_keys: {
               blockchain: { _eq: blockchain },
               public_key: { _eq: publicKey },
-              is_primary: { _eq: true },
+              user_active_publickey_mappings: {
+                blockchain: { _eq: blockchain },
+                public_key: {
+                  public_key: { _eq: publicKey },
+                },
+              },
             },
           },
         },
         {
           id: true,
           username: true,
-          public_keys: [
-            { where: { is_primary: { _eq: true } } },
-            {
-              blockchain: true,
-              public_key: true,
-            },
-          ],
         },
       ],
     },

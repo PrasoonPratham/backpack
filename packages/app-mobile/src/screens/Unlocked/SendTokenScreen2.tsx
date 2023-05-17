@@ -1,8 +1,8 @@
 import type { Token } from "@@types/types";
-import type { RemoteUserData } from "@coral-xyz/common";
+import type { RemoteUserData, SubscriptionType } from "@coral-xyz/common";
 
 import { useEffect, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View, ScrollView } from "react-native";
 
 import { BACKEND_API_URL, Blockchain } from "@coral-xyz/common";
 import { useContacts } from "@coral-xyz/db";
@@ -14,15 +14,16 @@ import {
   useUser,
 } from "@coral-xyz/recoil";
 import {
-  Box,
-  DangerButton,
-  ListItem,
   PrimaryButton,
+  DangerButton,
+  Box,
   Text,
   YGroup,
+  ListItem,
   YStack,
 } from "@coral-xyz/tamagui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { SearchInput as BaseSearchInput } from "~components/StyledTextInput";
@@ -42,39 +43,31 @@ function NotSelected() {
   return null;
 }
 
-type User = any;
-
-type SelectUserResultProp = {
-  user: User;
-  address: string;
-};
-
 export function SendTokenSelectUserScreen({
   blockchain,
   token,
   inputContent,
   setInputContent,
   hasInputError,
-  onSelectUserResult,
-  onPressNext,
+  normalizedAddress,
 }: {
   blockchain: Blockchain;
   token: Token;
   inputContent: string;
   setInputContent: (content: string) => void;
   hasInputError: boolean;
-  onSelectUserResult: (data: SelectUserResultProp) => void;
-  onPressNext: (data: { user: User }) => void;
+  normalizedAddress: string;
 }): JSX.Element {
+  const navigation = useNavigation();
   const [searchResults, setSearchResults] = useState<RemoteUserData[]>([]);
   const isNextButtonDisabled = inputContent.length === 0 || hasInputError;
   const insets = useSafeAreaInsets();
 
   return (
     <ScrollView style={{ flex: 1 }}>
-      <YStack flex={1} jc="flex-between" mb={insets.bottom}>
+      <YStack f={1} jc="flex-between" mb={insets.bottom}>
         <View style={{ flex: 1 }}>
-          <Box marginBottom={8}>
+          <Box mb={8}>
             <SearchInput
               blockchain={blockchain}
               searchResults={searchResults}
@@ -88,28 +81,22 @@ export function SendTokenSelectUserScreen({
               token={token}
               searchFilter={inputContent}
               blockchain={blockchain}
-              onPressRow={onSelectUserResult}
             />
           ) : null}
-          <Contacts
-            searchFilter={inputContent}
-            blockchain={blockchain}
-            onPressRow={onSelectUserResult}
-          />
+          <Contacts searchFilter={inputContent} blockchain={blockchain} />
           <SearchResults
             blockchain={blockchain}
             token={token}
             searchResults={searchResults}
-            onPressRow={onSelectUserResult}
           />
         </View>
         <View>
           {hasInputError ? (
-            <DangerButton label="Invalid address" disabled />
+            <DangerButton label="Invalid address" disabled onPress={() => {}} />
           ) : (
             <PrimaryButton
-              label="Next"
               disabled={isNextButtonDisabled}
+              label="Next"
               onPress={() => {
                 const user = searchResults.find((x) =>
                   x.public_keys.find(
@@ -117,7 +104,16 @@ export function SendTokenSelectUserScreen({
                   )
                 );
 
-                onPressNext({ user });
+                navigation.navigate("SendTokenConfirm", {
+                  blockchain,
+                  token,
+                  to: {
+                    address: normalizedAddress,
+                    username: user?.username,
+                    image: user?.image,
+                    uuid: user?.uuid,
+                  },
+                });
               }}
             />
           )}
@@ -143,7 +139,7 @@ export const SearchInput = ({
   const fetchUserDetails = async (address: string, blockchain: Blockchain) => {
     try {
       const jwt = await AsyncStorage.getItem("@bk-jwt");
-      const url = `${BACKEND_API_URL}/users?usernamePrefix=${address}&blockchain=${blockchain}&limit=6`;
+      const url = `${BACKEND_API_URL}/users?usernamePrefix=${address}&blockchain=${blockchain}limit=6`;
       const response = await fetch(url, {
         headers: {
           authorization: `Bearer ${jwt}`,
@@ -190,20 +186,20 @@ export const SearchInput = ({
   return (
     <BaseSearchInput
       placeholder="Enter a username or address"
+      value={inputContent}
       onChangeText={(text: string) => setInputContent(text)}
     />
   );
 };
 
 const SearchResults = ({
+  token,
   blockchain,
   searchResults,
-  onPressRow,
 }: {
   blockchain: Blockchain;
   token: Token;
   searchResults: any[];
-  onPressRow: (data: any) => void;
 }) => {
   // Don't show any friends because they will show up under contacts
   // This would be better implemented on the server query because it messes
@@ -212,146 +208,38 @@ const SearchResults = ({
     (user) => !user.areFriends
   );
 
-  const parsedWallets = filteredSearchResults
-    .map((user) => ({
-      username: user.username,
-      image: user.image,
-      uuid: user.id,
-      addresses: user.public_keys
-        .filter((x: any) => x.blockchain === blockchain)
-        ?.map((x: any) => x.publicKey),
-    }))
-    .filter((x) => x.addresses.length !== 0);
-
-  if (filteredSearchResults.length === 0) {
-    return null;
-  }
-
   return (
-    <Section
-      title="Other people"
-      wallets={parsedWallets}
-      onPressRow={onPressRow}
-    />
-  );
-};
-
-const YourAddresses = ({
-  blockchain,
-  searchFilter,
-  onPressRow,
-}: {
-  token: Token;
-  blockchain: Blockchain;
-  searchFilter: string;
-  onPressRow: (data: SelectUserResultProp) => void;
-}) => {
-  const wallets = useAllWallets().filter((x) => x.blockchain === blockchain);
-  const { uuid, username } = useUser();
-  const avatarUrl = useAvatarUrl();
-  const activeSolWallet = useActiveSolanaWallet();
-  const activeEthWallet = useActiveEthereumWallet();
-
-  if (wallets.length === 1) {
-    // Only one wallet available
-    return null;
-  }
-
-  const parsedWallets = wallets
-    .filter((x) => x.blockchain === blockchain)
-    .filter(
-      (x) =>
-        x.publicKey !==
-          (blockchain === Blockchain.SOLANA
-            ? activeSolWallet.publicKey
-            : activeEthWallet.publicKey) && x.publicKey.includes(searchFilter)
-    )
-    .map((wallet) => ({
-      username,
-      walletName: wallet.name,
-      image: avatarUrl,
-      uuid,
-      addresses: [wallet.publicKey],
-    }));
-
-  return (
-    <Section
-      title="Your addresses"
-      wallets={parsedWallets}
-      onPressRow={onPressRow}
-    />
-  );
-};
-
-const Contacts = ({
-  blockchain,
-  searchFilter,
-  onPressRow,
-}: {
-  blockchain: Blockchain;
-  searchFilter: string;
-  onPressRow: (data: SelectUserResultProp) => void;
-}) => {
-  const { uuid } = useUser();
-  const contacts = useContacts(uuid);
-
-  const filteredContacts = contacts
-    .filter((x) => {
-      if (x.remoteUsername.includes(searchFilter)) {
-        return true;
-      }
-      if (x.public_keys.find((x) => x.publicKey.includes(searchFilter))) {
-        return true;
-      }
-      return false;
-    })
-    .filter((x) => !!x.public_keys?.[0]);
-
-  const parsedWallets = filteredContacts.map((c) => ({
-    username: c.remoteUsername,
-    addresses: c.public_keys
-      .filter(
-        (x) =>
-          x.blockchain === blockchain &&
-          (x.publicKey.includes(searchFilter) ||
-            c.remoteUsername.includes(searchFilter))
-      )
-      .map((x) => x.publicKey),
-    image: c.remoteUserImage,
-    uuid: c.remoteUserId,
-  }));
-
-  return (
-    <Section title="Friends" wallets={parsedWallets} onPressRow={onPressRow} />
-  );
-};
-
-function Section({
-  title,
-  wallets,
-  onPressRow,
-}: {
-  title: string;
-  wallets: any[];
-  onPressRow: (data: SelectUserResultProp) => void;
-}) {
-  if (wallets.length === 0) {
-    return null;
-  }
-
-  return (
-    <Box marginVertical={12}>
-      <BubbleTopLabel text={title} />
-      <AddressList wallets={wallets} onPressRow={onPressRow} />
+    <Box>
+      {filteredSearchResults.length !== 0 ? (
+        <Box mt={10}>
+          <BubbleTopLabel text="Other people" />
+          <AddressList
+            token={token}
+            blockchain={blockchain}
+            wallets={filteredSearchResults
+              .map((user) => ({
+                username: user.username,
+                image: user.image,
+                uuid: user.id,
+                addresses: user.public_keys
+                  .filter((x: any) => x.blockchain === blockchain)
+                  ?.map((x: any) => x.publicKey),
+              }))
+              .filter((x) => x.addresses.length !== 0)}
+          />
+        </Box>
+      ) : null}
     </Box>
   );
-}
+};
 
 function AddressList({
+  blockchain,
+  token,
   wallets,
-  onPressRow,
 }: {
-  onPressRow: (data: SelectUserResultProp) => void;
+  blockchain: Blockchain;
+  token: Token;
   wallets: {
     username: string;
     walletName?: string;
@@ -364,25 +252,19 @@ function AddressList({
 
   return (
     <YGroup bordered>
-      {walletsWithPrimary.map((wallet) => {
+      {walletsWithPrimary.map((wallet, index) => {
         const key = [wallet.username, wallet.walletName].join(":");
-        const address = wallet.addresses?.[0];
-        const user = {
-          walletName: wallet.walletName,
-          username: wallet.username,
-          image: wallet.image,
-          uuid: wallet.uuid,
-        };
-
         return (
           <AddressListItem
             key={key}
-            address={address}
-            user={user}
-            onPress={() => {
-              if (address) {
-                onPressRow({ user, address });
-              }
+            token={token}
+            blockchain={blockchain}
+            address={wallet.addresses?.[0]}
+            user={{
+              walletName: wallet.walletName,
+              username: wallet.username,
+              image: wallet.image,
+              uuid: wallet.uuid,
             }}
           />
         );
@@ -393,11 +275,13 @@ function AddressList({
 
 const AddressListItem = ({
   address,
+  blockchain,
+  token,
   user,
-  onPress,
 }: {
   address?: string;
-  onPress: () => void;
+  blockchain: Blockchain;
+  token: Token;
   user: {
     username: string;
     walletName?: string;
@@ -405,7 +289,27 @@ const AddressListItem = ({
     uuid: string;
   };
 }) => {
+  const navigation = useNavigation();
   const title = user.walletName || user.username;
+
+  const handlePress = () => {
+    if (!address) {
+      return;
+    }
+
+    navigation.navigate("SendTokenConfirm", {
+      blockchain,
+      token,
+      to: {
+        address,
+        username: user.username,
+        walletName: user.walletName,
+        image: user.image,
+        uuid: user.uuid,
+      },
+    });
+  };
+
   return (
     <YGroup.Item>
       <ListItem
@@ -414,7 +318,7 @@ const AddressListItem = ({
         height={48}
         justifyContent="flex-start"
         icon={<UserAvatar size={32} uri={user.image} />}
-        onPress={onPress}
+        onPress={handlePress}
       >
         <Text fontSize={16} fontFamily="Inter_500Medium">
           {title}
@@ -431,5 +335,101 @@ const AddressListItem = ({
         ) : null}
       </ListItem>
     </YGroup.Item>
+  );
+};
+
+const YourAddresses = ({
+  token,
+  blockchain,
+  searchFilter,
+}: {
+  token: Token;
+  blockchain: Blockchain;
+  searchFilter: string;
+}) => {
+  const wallets = useAllWallets().filter((x) => x.blockchain === blockchain);
+  const { uuid, username } = useUser();
+  const avatarUrl = useAvatarUrl();
+  const activeSolWallet = useActiveSolanaWallet();
+  const activeEthWallet = useActiveEthereumWallet();
+
+  if (wallets.length === 1) {
+    // Only one wallet available
+    return null;
+  }
+
+  return (
+    <Box my={12}>
+      <BubbleTopLabel text="Your addresses" />
+      <AddressList
+        blockchain={blockchain}
+        token={token}
+        wallets={wallets
+          .filter((x) => x.blockchain === blockchain)
+          .filter(
+            (x) =>
+              x.publicKey !==
+                (blockchain === Blockchain.SOLANA
+                  ? activeSolWallet.publicKey
+                  : activeEthWallet.publicKey) &&
+              x.publicKey.includes(searchFilter)
+          )
+          .map((wallet) => ({
+            username,
+            walletName: wallet.name,
+            image: avatarUrl,
+            uuid,
+            addresses: [wallet.publicKey],
+          }))}
+      />
+    </Box>
+  );
+};
+
+const Contacts = ({
+  token,
+  blockchain,
+  searchFilter,
+}: {
+  token: Token;
+  blockchain: Blockchain;
+  searchFilter: string;
+}) => {
+  const { uuid } = useUser();
+  const contacts = useContacts(uuid);
+
+  const filteredContacts = contacts
+    .filter((x) => {
+      if (x.remoteUsername.includes(searchFilter)) {
+        return true;
+      }
+      if (x.public_keys.find((x) => x.publicKey.includes(searchFilter))) {
+        return true;
+      }
+      return false;
+    })
+    .filter((x) => !!x.public_keys?.[0]);
+
+  return (
+    <Box marginVertical={12}>
+      <BubbleTopLabel text="Friends" />
+      <AddressList
+        blockchain={blockchain}
+        token={token}
+        wallets={filteredContacts.map((c) => ({
+          username: c.remoteUsername,
+          addresses: c.public_keys
+            .filter(
+              (x) =>
+                x.blockchain === blockchain &&
+                (x.publicKey.includes(searchFilter) ||
+                  c.remoteUsername.includes(searchFilter))
+            )
+            .map((x) => x.publicKey),
+          image: c.remoteUserImage,
+          uuid: c.remoteUserId,
+        }))}
+      />
+    </Box>
   );
 };

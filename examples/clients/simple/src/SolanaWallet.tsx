@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { BackpackWalletAdapter } from "@solana/wallet-adapter-backpack";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
@@ -35,7 +35,7 @@ export const SolanaWallet: FC = (props) => {
   // of wallets that your users connect to will be loaded.
   const wallets = useMemo(
     () => [new BackpackWalletAdapter(), new PhantomWalletAdapter()],
-    [network]
+    []
   );
 
   return (

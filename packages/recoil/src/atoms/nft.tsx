@@ -48,15 +48,12 @@ export const nftCollectionsWithIds = selector<
         })
       )
     );
-    return allWalletCollections.filter(Boolean) as Array<{
-      publicKey: string;
-      collections: Array<NftCollection>;
-    }>;
+    return allWalletCollections;
   },
 });
 
 export const nftById = equalSelectorFamily<
-  Nft | null,
+  Nft,
   { publicKey: string; connectionUrl: string; nftId: string }
 >({
   key: "nftById",
@@ -135,7 +132,7 @@ export const nftsByIds = selectorFamily<
       nftIds: { nftId: string; publicKey: string }[];
       blockchain: Blockchain;
     }) =>
-    async ({ get }) => {
+    async ({ get }: any) => {
       const connectionUrl =
         blockchain === Blockchain.ETHEREUM
           ? get(ethereumConnectionUrl)
@@ -152,7 +149,7 @@ export const nftsByIds = selectorFamily<
           })
         )
       );
-      return allNfts.filter(Boolean) as Array<Nft>;
+      return allNfts;
     },
 });
 

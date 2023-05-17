@@ -22,30 +22,20 @@ export function PreferencesSolanaExplorer() {
   const menuItems = {
     "Solana Beach": {
       onClick: () => changeExplorer(SolanaExplorer.SOLANA_BEACH),
-      detail:
-        explorer === SolanaExplorer.SOLANA_BEACH ? <Checkmark /> : <div />,
+      detail: explorer === SolanaExplorer.SOLANA_BEACH ? <Checkmark /> : <></>,
     },
     "Solana Explorer": {
       onClick: () => changeExplorer(SolanaExplorer.SOLANA_EXPLORER),
       detail:
-        explorer === SolanaExplorer.SOLANA_EXPLORER ? (
-          <Checkmark />
-        ) : (
-          <div />
-        ),
+        explorer === SolanaExplorer.SOLANA_EXPLORER ? <Checkmark /> : <></>,
     },
     "Solana FM": {
       onClick: () => changeExplorer(SolanaExplorer.SOLANA_FM),
-      detail:
-        explorer === SolanaExplorer.SOLANA_FM ? <Checkmark /> : <div />,
+      detail: explorer === SolanaExplorer.SOLANA_FM ? <Checkmark /> : <></>,
     },
     Solscan: {
       onClick: () => changeExplorer(SolanaExplorer.SOLSCAN),
-      detail: explorer === SolanaExplorer.SOLSCAN ? <Checkmark /> : <div />,
-    },
-    XRAY: {
-      onClick: () => changeExplorer(SolanaExplorer.XRAY),
-      detail: explorer === SolanaExplorer.XRAY ? <Checkmark /> : <div />,
+      detail: explorer === SolanaExplorer.SOLSCAN ? <Checkmark /> : <></>,
     },
   };
 

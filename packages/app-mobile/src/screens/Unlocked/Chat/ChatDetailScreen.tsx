@@ -1,58 +1,48 @@
 import type { StackScreenProps } from "@react-navigation/stack";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Platform, Button, View, Text } from "react-native";
 
-import * as Crypto from "expo-crypto";
-
-// import { Video, ResizeMode, AVPlaybackStatus } from "expo-av";
+import { Video, ResizeMode, AVPlaybackStatus } from "expo-av";
 
 import { CHAT_MESSAGES } from "@coral-xyz/common";
 import { createEmptyFriendship } from "@coral-xyz/db";
 import { useUser, useAvatarUrl } from "@coral-xyz/recoil";
-import {
-  fetchMoreChatsFor,
-  SignalingManager,
-  useChatsWithMetadata,
-} from "@coral-xyz/tamagui";
-import { GiftedChat, Send } from "react-native-gifted-chat";
+import { SignalingManager, useChatsWithMetadata } from "@coral-xyz/tamagui";
+import { GiftedChat, MessageVideoProps } from "react-native-gifted-chat";
 import { v4 as uuidv4 } from "uuid";
 
-import { UserAvatar } from "~components/UserAvatar";
 import { ChatStackNavigatorParamList } from "~screens/Unlocked/Chat/ChatHelpers";
 
-const generateId = () => {
-  return Crypto.randomUUID();
-};
-
-// function VideoMessage() {
-//   const video = useRef(null);
-//   const [status, setStatus] = useState<AVPlaybackStatus | object>({});
-//   return (
-//     <View>
-//       <Video
-//         ref={video}
-//         style={{ width: 150, height: 100 }}
-//         source={{
-//           uri: "https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
-//         }}
-//         useNativeControls
-//         resizeMode={ResizeMode.CONTAIN}
-//         isLooping
-//         onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-//       />
-//       <View>
-//         <Button
-//           title={status.isPlaying ? "Pause" : "Play"}
-//           onPress={() =>
-//             status.isPlaying
-//               ? video.current.pauseAsync()
-//               : video.current.playAsync()
-//           }
-//         />
-//       </View>
-//     </View>
-//   );
-// }
+function VideoMessage() {
+  const video = useRef(null);
+  const [status, setStatus] = useState<AVPlaybackStatus | object>({});
+  return (
+    <View>
+      <Video
+        ref={video}
+        style={{ width: 150, height: 100 }}
+        source={{
+          uri: "https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+        }}
+        useNativeControls
+        resizeMode={ResizeMode.CONTAIN}
+        isLooping
+        onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+      />
+      <View>
+        <Button
+          title={status.isPlaying ? "Pause" : "Play"}
+          onPress={() =>
+            status.isPlaying
+              ? video.current.pauseAsync()
+              : video.current.playAsync()
+          }
+        />
+      </View>
+    </View>
+  );
+}
 
 const formatDate = (created_at: string) => {
   return !isNaN(new Date(parseInt(created_at, 10)).getTime())
@@ -60,9 +50,37 @@ const formatDate = (created_at: string) => {
     : 0;
 };
 
-const formatChats = (chats) => {
-  return chats
-    .map((x) => {
+export function ChatDetailScreen({
+  // navigation,
+  route,
+}: StackScreenProps<ChatStackNavigatorParamList, "ChatDetail">): JSX.Element {
+  const { roomType, roomId, remoteUserId, remoteUsername } = route.params;
+  const user = useUser();
+  const avatarUrl = useAvatarUrl();
+
+  // TODO(kirat)
+  const [isLoadingEarlier, setIsLoadingEarlier] = useState(false);
+  const { chats } = useChatsWithMetadata({
+    room: roomId.toString(),
+    type: roomType,
+  });
+
+  // TODO(kirat) load earlier chats
+  const onLoadEarlier = () => {
+    setIsLoadingEarlier(true);
+    GiftedChat.prepend([], [], Platform.OS !== "web");
+
+    setTimeout(() => {
+      setIsLoadingEarlier(false);
+    }, 250);
+  };
+
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    // TODO(kirat) messages are coming in in reverse order, despite `inverted={true}`
+    // assuming this might have something to do with the time stamps being incorrect?
+    const _messages = chats.map((x) => {
       return {
         _id: x.client_generated_uuid,
         text: x.message,
@@ -81,37 +99,12 @@ const formatChats = (chats) => {
           avatar: x.image,
         },
       };
-    })
-    .reverse();
-};
+    });
 
-export function ChatDetailScreen({
-  // navigation,
-  route,
-}: StackScreenProps<ChatStackNavigatorParamList, "ChatDetail">): JSX.Element {
-  const { roomType, roomId, remoteUserId, remoteUsername } = route.params;
-  const user = useUser();
-  const avatarUrl = useAvatarUrl();
+    setMessages(_messages);
+  }, []);
 
-  const [isLoadingEarlier, setIsLoadingEarlier] = useState(false);
-  const { chats } = useChatsWithMetadata({
-    room: roomId.toString(),
-    type: roomType,
-  });
-
-  const messages = useMemo(() => formatChats(chats), [chats]);
-
-  const onLoadEarlier = useCallback(async () => {
-    setIsLoadingEarlier(true);
-    try {
-      await fetchMoreChatsFor(user.uuid, roomId.toString(), roomType);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoadingEarlier(false);
-    }
-  }, [roomId, roomType, user.uuid]);
-
+  // TODO(kirat) not sure this is doing anything
   const onSend = useCallback(
     async (messages = []) => {
       const [message] = messages;
@@ -132,7 +125,7 @@ export function ChatDetailScreen({
           last_message: messageText,
           last_message_client_uuid: client_generated_uuid,
           remoteUsername,
-          id: roomId.toString(),
+          id: roomId,
         });
 
         SignalingManager.getInstance().onUpdateRecoil({
@@ -154,26 +147,22 @@ export function ChatDetailScreen({
           room: roomId.toString(),
         },
       });
+
+      setMessages((previousMessages) => {
+        GiftedChat.append(previousMessages, messages);
+      });
     },
     [chats.length, roomId, roomType, user.uuid, remoteUserId, remoteUsername]
   );
 
-  const renderSend = useCallback((props) => {
-    return <Send {...props} />;
-  }, []);
-
-  // const renderMessageVideo = useCallback((props: MessageVideoProps<any>) => {
-  //   const { video } = props.currentMessage;
-  //   return <VideoMessage />;
-  // }, []);
-
-  const renderAvatar = useCallback((props) => {
-    return <UserAvatar uri={props.currentMessage.user.avatar} size={32} />;
+  const renderMessageVideo = useCallback((props: MessageVideoProps<any>) => {
+    const { video } = props.currentMessage;
+    return <VideoMessage />;
   }, []);
 
   return (
     <GiftedChat
-      messageIdGenerator={generateId}
+      messageIdGenerator={() => uuidv4()}
       showAvatarForEveryMessage
       alwaysShowSend
       loadEarlier
@@ -183,9 +172,7 @@ export function ChatDetailScreen({
       inverted
       messages={messages}
       onSend={onSend}
-      renderSend={renderSend}
-      renderAvatar={renderAvatar}
-      // renderMessageVideo={renderMessageVideo}
+      renderMessageVideo={renderMessageVideo}
       user={{
         _id: user.uuid,
         name: user.username,

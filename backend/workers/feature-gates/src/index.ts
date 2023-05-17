@@ -1,16 +1,8 @@
 import { Hono } from "hono";
-import { cors } from "hono/cors";
-
 import { FEATURE_GATES } from "./FEATURES";
 import { getStripeEnabledGate } from "./stripe";
 
-type Env = {
-  STRIPE_SECRET: string;
-};
-
-const app = new Hono<{ Bindings: Env }>();
-
-app.use("*", cors());
+const app = new Hono();
 
 app.get("/", (c) => {
   return c.json("ok", 200);

@@ -23,8 +23,14 @@ export const getUser = async (id: string) => {
           id: true,
           username: true,
           public_keys: [
-            { where: { is_primary: { _eq: true } } },
-            { blockchain: true, public_key: true, is_primary: true },
+            {
+              where: {
+                user_active_publickey_mappings: {
+                  user_id: { _eq: id },
+                },
+              },
+            },
+            { blockchain: true, public_key: true },
           ],
         },
       ],
@@ -92,28 +98,58 @@ export const getUserFromUsername = async ({
 }: {
   username: string;
 }) => {
-  const { auth_users } = await chain("query")(
+  const response = await chain("query")(
     {
       auth_users: [
         {
           limit: 1,
           where: {
             username: { _eq: username },
-            public_keys: { is_primary: { _eq: true } },
           },
         },
         {
           id: true,
           username: true,
-          public_keys: [
-            { where: { is_primary: { _eq: true } } },
-            { blockchain: true, public_key: true },
-          ],
+          public_keys: [{}, { blockchain: true, public_key: true }],
         },
       ],
     },
     { operationName: "getUserFromUsername" }
   );
 
-  return auth_users[0];
+  const user = response.auth_users[0];
+  if (!user) {
+    return null;
+  }
+
+  const activePubkeys = await chain("query")(
+    {
+      auth_user_active_publickey_mapping: [
+        {
+          where: {
+            user_id: { _eq: user?.id },
+          },
+        },
+        {
+          public_key: {
+            public_key: true,
+          },
+        },
+      ],
+    },
+    { operationName: "getUserFromUsername" }
+  );
+
+  const activePubKeyArray: string[] =
+    activePubkeys.auth_user_active_publickey_mapping.map(
+      (x) => x.public_key.public_key
+    );
+
+  const gaurdedUser = {
+    ...user,
+    public_keys: user.public_keys.filter((x) =>
+      activePubKeyArray.includes(x.public_key)
+    ),
+  };
+  return gaurdedUser;
 };

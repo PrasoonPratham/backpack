@@ -99,8 +99,6 @@ export type SwapContext = {
   isLoadingRoutes: boolean;
   isLoadingTransactions: boolean;
   isJupiterError: boolean;
-  canSwap: boolean;
-  canSwitch: boolean;
 };
 
 const _SwapContext = React.createContext<SwapContext | null>(null);
@@ -543,11 +541,6 @@ export function SwapProvider({
     return signature;
   };
 
-  // Only allow users to switch input and output tokens if they currently
-  // have a balance of the output token
-  const canSwitch =
-    toToken?.mint === WSOL_MINT || fromTokens.some((t) => t.mint === toMint);
-
   return (
     <_SwapContext.Provider
       value={{
@@ -575,8 +568,6 @@ export function SwapProvider({
         availableForSwap,
         exceedsBalance,
         feeExceedsBalance,
-        canSwap: !availableForSwap.isZero(),
-        canSwitch,
       }}
     >
       {children}
