@@ -41,7 +41,7 @@ export const solanaTokenMetadata = selectorFamily<
       if (mintAddress === "11111111111111111111111111111111111111111") {
         return {
           image: "",
-          name: "Solana",
+          name: "Eclipse",
           symbol: "SOL",
         };
       }

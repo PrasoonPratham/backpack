@@ -176,7 +176,7 @@ export function BalancesTableCell({ props }: any) {
           classes={{ root: classes.tokenListItemIconRoot }}
         >
           <ProxyImage
-            src={icon}
+            src="https://nautchain.xyz/media/nuatchain_media_kit/naut_sq.png"
             className={classes.logoIcon}
             onError={(event: any) => {
               event.currentTarget.src = UNKNOWN_ICON_SRC;

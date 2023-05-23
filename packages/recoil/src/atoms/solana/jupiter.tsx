@@ -142,7 +142,7 @@ export const jupiterOutputTokens = selectorFamily({
           // the API call, so it'll automatically unwrap wSOL.
           name:
             tokenMetadata.name === "Wrapped SOL"
-              ? "Solana"
+              ? "Eclipse"
               : tokenMetadata.name,
           ticker: tokenMetadata.symbol,
           decimals: tokenMetadata.decimals,

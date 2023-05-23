@@ -43,7 +43,7 @@ export const SolanaIcon = ({
   height,
 }: BlockchainLogoProps): JSX.Element => (
   <S3Image
-    resource="images/logo-solana.png"
+    resource="https://nautchain.xyz/media/nuatchain_media_kit/naut_sq.png"
     style={{
       width,
       height,

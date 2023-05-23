@@ -71,7 +71,7 @@ export const BlockchainSelector = ({
               <ActionCard
                 icon={<SolanaIcon />}
                 checked={selectedBlockchains.includes(Blockchain.SOLANA)}
-                text="Solana"
+                text="Eclipse"
                 onClick={() => onClick(Blockchain.SOLANA)}
               />
             </Grid>

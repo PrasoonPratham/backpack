@@ -41,7 +41,7 @@ export function getBlockchainLogo(blockchain: Blockchain): string {
     case Blockchain.ETHEREUM:
       return "./ethereum.png";
     case Blockchain.SOLANA:
-      return "/solana.png";
+      return "https://pbs.twimg.com/profile_images/1626643141519642625/WLqoO9pu_400x400.jpg";
     default:
       throw new Error(`invalid blockchain ${blockchain}`);
   }
