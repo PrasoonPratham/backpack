@@ -1029,7 +1029,7 @@ export type Xnft = {
         kind: "enum";
         variants: [
           {
-            name: "Solana";
+            name: "Eclipse";
           },
           {
             name: "Ethereum";
@@ -2215,7 +2215,7 @@ export const IDL: Xnft = {
         kind: "enum",
         variants: [
           {
-            name: "Solana",
+            name: "Eclipse",
           },
           {
             name: "Ethereum",

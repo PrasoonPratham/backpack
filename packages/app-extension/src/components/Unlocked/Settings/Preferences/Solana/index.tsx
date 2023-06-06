@@ -18,7 +18,7 @@ export const PreferencesSolana: React.FC = () => {
   };
 
   useEffect(() => {
-    nav.setOptions({ headerTitle: "Solana" });
+    nav.setOptions({ headerTitle: "Eclipse" });
   }, [nav]);
 
   return <SettingsList menuItems={solanaMenuItems} />;

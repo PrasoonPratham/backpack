@@ -375,7 +375,7 @@ export function WalletListBlockchainSelector() {
         <Grid item xs={6}>
           <ActionCard
             icon={<SolanaIcon />}
-            text="Eclipse"
+            text="Solana"
             onClick={() => onClick(Blockchain.SOLANA)}
           />
         </Grid>

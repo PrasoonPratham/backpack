@@ -489,7 +489,7 @@ export function useSolanaTxData(serializedTx: any): TransactionData {
     from: walletPublicKey.toString(),
     simulationError,
     balanceChanges,
-    network: "Solana",
+    network: "Eclipse",
     networkFee: ethers.utils.formatUnits(estimatedTxFee, 9),
     solanaFeeConfig,
     setSolanaFeeConfig,

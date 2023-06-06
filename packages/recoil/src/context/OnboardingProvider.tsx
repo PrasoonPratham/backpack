@@ -51,7 +51,7 @@ const BLOCKCHAIN_OPTIONS: BlockchainSelectOption[] = [
   },
   {
     id: Blockchain.SOLANA,
-    label: "Solana",
+    label: "Eclipse",
     enabled: true,
   },
   {

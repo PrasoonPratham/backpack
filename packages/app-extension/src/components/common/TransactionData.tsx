@@ -157,7 +157,7 @@ export function TransactionData({
           },
         }
       : {}),
-    ...(network === "Solana" && developerMode
+    ...(network === "Eclipse" && developerMode
       ? {
           "Max Compute units": {
             onClick: () => {},

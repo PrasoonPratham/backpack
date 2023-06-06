@@ -13,7 +13,7 @@ export const result__useTotalBalance = {
 
 export const result__useBlockchainBalancesSorted = [
   {
-    name: "Solana",
+    name: "Eclipse",
     decimals: 9,
     nativeBalance: {
       type: "BigNumber",
