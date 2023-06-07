@@ -346,7 +346,7 @@ function RenderNFT({
           key={nftId}
           onClick={() => {
             const avatarId =
-              nft.blockchain === "eclipse"
+              nft.blockchain === "solana"
                 ? // @ts-ignore
                   nft.mint
                 : nft.id;

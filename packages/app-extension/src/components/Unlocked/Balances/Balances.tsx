@@ -280,7 +280,7 @@ export function _BalancesTableHead({
 }) {
   const classes = useStyles();
   const theme = useCustomTheme();
-  const title = toTitleCase(blockchain);
+  const title = toTitleCase(blockchain === "solana" ? "Eclipse" : blockchain);
   const iconUrl = getBlockchainLogo(blockchain);
   const _isAggregateWallets = useRecoilValue(isAggregateWallets);
   return (

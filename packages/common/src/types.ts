@@ -42,7 +42,7 @@ export type RpcResponseData = {
 };
 
 export enum Blockchain {
-  SOLANA = "eclipse",
+  SOLANA = "solana",
   ETHEREUM = "ethereum",
 }
 

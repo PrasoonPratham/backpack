@@ -490,7 +490,7 @@ export function NftOptionsButton() {
       // Store on server.
       //
       const id = `${nft.blockchain}/${
-        nft.blockchain === "eclipse" ? nft.mint : nft.id
+        nft.blockchain === "solana" ? nft.mint : nft.id
       }`;
 
       await fetch(BACKEND_API_URL + "/users/avatar", {
