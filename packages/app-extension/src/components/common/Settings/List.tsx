@@ -37,48 +37,55 @@ export function SettingsList({
         ...style,
       }}
     >
-      {Object.entries(menuItems).map(([key, val]: any, i, { length }) => (
-        <ListItem
-          key={key}
-          id={key}
-          isFirst={i === 0}
-          isLast={i === length - 1}
-          onClick={() => val.onClick()}
-          style={{
-            height: "44px",
-            padding: "10px",
-            ...val.style,
-          }}
-          button={val.button === undefined ? true : val.button}
-          classes={val.classes}
-          detail={val.detail ?? <PushDetail />}
-          borderColor={borderColor}
-          allowOnclickPropagation={val.allowOnclickPropagation}
-        >
-          <div
+      {Object.entries(menuItems).map(([key, val]: any, i, { length }) => {
+        let label = val.label ?? key;
+        if (label === "Solana") {
+          label = "Eclipse";
+        }
+
+        return (
+          <ListItem
+            key={key}
+            id={key}
+            isFirst={i === 0}
+            isLast={i === length - 1}
+            onClick={() => val.onClick()}
             style={{
-              display: "flex",
-              flex: 1,
-              alignItems: "center",
+              height: "44px",
+              padding: "10px",
+              ...val.style,
             }}
+            button={val.button === undefined ? true : val.button}
+            classes={val.classes}
+            detail={val.detail ?? <PushDetail />}
+            borderColor={borderColor}
+            allowOnclickPropagation={val.allowOnclickPropagation}
           >
-            {val.icon
-              ? val.icon({
-                  style: {
-                    color: theme.custom.colors.icon,
-                    height: "24px",
-                    width: "24px",
-                    marginRight: "8px",
-                  },
-                  fill: theme.custom.colors.icon,
-                })
-              : null}
-            <Typography style={{ fontWeight: 500, ...textStyle }}>
-              {val.label ?? key}
-            </Typography>
-          </div>
-        </ListItem>
-      ))}
+            <div
+              style={{
+                display: "flex",
+                flex: 1,
+                alignItems: "center",
+              }}
+            >
+              {val.icon
+                ? val.icon({
+                    style: {
+                      color: theme.custom.colors.icon,
+                      height: "24px",
+                      width: "24px",
+                      marginRight: "8px",
+                    },
+                    fill: theme.custom.colors.icon,
+                  })
+                : null}
+              <Typography style={{ fontWeight: 500, ...textStyle }}>
+                {label}
+              </Typography>
+            </div>
+          </ListItem>
+        );
+      })}
     </List>
   );
 }
