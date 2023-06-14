@@ -4,7 +4,7 @@ import { TokenListProvider } from "@solana/spl-token-registry";
 import { atom, selector } from "recoil";
 
 export const SOL_LOGO_URI =
-  "https://nautchain.xyz/media/nuatchain_media_kit/naut_sq.png";
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Kiwi_%28Actinidia_chinensis%29_1_Luc_Viatour.jpg/800px-Kiwi_%28Actinidia_chinensis%29_1_Luc_Viatour.jpg";
 
 export const splTokenRegistry = atom<Map<string, TokenInfo> | null>({
   key: "splTokenRegistry",
@@ -24,11 +24,11 @@ export const splTokenRegistry = atom<Map<string, TokenInfo> | null>({
         return map;
       }, new Map());
       tokenMap.set(SOL_NATIVE_MINT, {
-        name: "Nautilus",
+        name: "Kiwi",
         address: SOL_NATIVE_MINT,
         chainId: 101,
         decimals: 9,
-        symbol: "tZBC",
+        symbol: "tKIWI",
         logoURI: SOL_LOGO_URI,
         extensions: {
           coingeckoId: "solana",

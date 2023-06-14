@@ -6,7 +6,7 @@ import { SettingsList } from "../../../../common/Settings/List";
 export const PreferencesSolana: React.FC = () => {
   const nav = useNavigation();
   const solanaMenuItems = {
-    "RPC Connection": {
+    "Choose Eclipse Chain": {
       onClick: () => nav.push("preferences-solana-rpc-connection"),
     },
     "Confirmation Commitment": {

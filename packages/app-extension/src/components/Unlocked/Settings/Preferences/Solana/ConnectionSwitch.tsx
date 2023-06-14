@@ -17,7 +17,7 @@ export function PreferencesSolanaConnection() {
   const nav = useNavigation();
 
   useEffect(() => {
-    nav.setOptions({ headerTitle: "RPC Connection" });
+    nav.setOptions({ headerTitle: "Choose Eclipse Chain" });
   }, [nav]);
 
   const menuItems = {
@@ -33,6 +33,13 @@ export function PreferencesSolanaConnection() {
       onClick: () => changeNetwork(SolanaCluster.LOCALNET),
       detail: currentUrl === SolanaCluster.LOCALNET ? <Checkmark /> : null,
     },
+    Kiwi: {
+      onClick: () => changeNetwork("https://api.kiwi.eclipsenetwork.xyz:8899/"),
+      detail:
+        currentUrl === "https://api.kiwi.eclipsenetwork.xyz:8899/" ? (
+          <Checkmark />
+        ) : null,
+    },
     Custom: {
       onClick: () => {
         nav.push("preferences-solana-edit-rpc-connection");
@@ -40,7 +47,8 @@ export function PreferencesSolanaConnection() {
       detail:
         currentUrl !== SolanaCluster.MAINNET &&
         currentUrl !== SolanaCluster.DEVNET &&
-        currentUrl !== SolanaCluster.LOCALNET ? (
+        currentUrl !== SolanaCluster.LOCALNET &&
+        currentUrl !== "https://api.kiwi.eclipsenetwork.xyz:8899/" ? (
           <>
             <Checkmark />
             <PushDetail />
